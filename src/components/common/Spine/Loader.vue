@@ -22,10 +22,11 @@ const market = useMarket()
 
 // http://esotericsoftware.com/spine-player#Viewports
 const spineViewport = {
-  padLeft: '0%',
-  padRight: '0%',
-  padTop: '0%',
-  padBottom: '0%'
+  debugRender: true,
+  // padLeft: '0%',
+  // padRight: '0%',
+  // padTop: '0%',
+  // padBottom: '0%'
 }
 
 onMounted(() => {
@@ -93,6 +94,8 @@ const spineLoader = () => {
         viewport: spineViewport,
         defaultMix: SPINE_DEFAULT_MIX,
         success: (player: any) => {
+          let cameraController = new usedSpine.CameraController(player.canvas, player.sceneRenderer.camera);
+          
           spinePlayer = player
           successfullyLoaded()
         },
@@ -411,18 +414,14 @@ const applyDefaultStyle2Canvas = () => {
 
     if (!canvas) return
 
-    canvas.width = canvas.height
+    // canvas.width = canvas.height
 
     if (checkMobile()) {
       setCanvasStyleMobile()
     } else {
-      canvas.style.height = market.live2d.HQassets ? '450vh' : '168vh'
-      canvas.style.marginTop = market.live2d.HQassets ? 'calc(-171vh)' : 'calc(-30vh)'
-      canvas.style.transform = market.live2d.HQassets ? 'scale(0.18)' : 'scale(0.5)'
-      canvas.style.position = 'absolute'
-      canvas.style.left = '0px'
-      canvas.style.top = '0px'
-      transformScale = market.live2d.HQassets ? 0.18 : 0.5
+      // HQ/LQ does not matter
+      canvas.style.width = '100%'
+      canvas.style.height = '100%'
       market.globalParams.showMobileHeader()
       centerForPC()
     }
@@ -434,7 +433,6 @@ const setCanvasStyleMobile = () => {
 
   canvas.style.height = '90vh'
   canvas.style.width = '100%'
-  transformScale = 1
   market.globalParams.hideMobileHeader()
 }
 
@@ -443,108 +441,11 @@ const checkMobile = () => {
 }
 
 const centerForPC = () => {
-  const canvas_width = canvas ? canvas.offsetWidth : 0
-  const viewport_width = window.innerWidth
-  canvas && (canvas.style.left = (viewport_width - canvas_width) / 2 + 'px')
+  // todo: make spine viewport/camera work
+  // const canvas_width = canvas ? canvas.offsetWidth : 0
+  // const viewport_width = window.innerWidth
+  // canvas && (canvas.style.left = (viewport_width - canvas_width) / 2 + 'px')
 }
-
-const filterDomEvents = (event: any) => {
-  if (
-    event.target === canvas ||
-    event.target === document.querySelector('.spine-player')
-  ) {
-    return true
-  } else {
-    return false
-  }
-}
-
-/**
- * click to drag the character around,
- * will move the canvas through the dom based on coordinates of the cursor
- */
-
-let oldX: number
-let oldY: number
-let move = false as boolean
-
-document.addEventListener('mousedown', (e) => {
-  if (filterDomEvents(e)) {
-    oldX = e.clientX
-    oldY = e.clientY
-    move = true
-  }
-})
-
-document.addEventListener('mouseup', () => {
-  oldX = 0
-  oldY = 0
-  move = false
-})
-
-document.addEventListener('mousemove', (e) => {
-  if (move && canvas) {
-    const newX = e.clientX
-    const newY = e.clientY
-
-    const stylel = parseInt(canvas.style.left.replaceAll('px', ''))
-    const stylet = parseInt(canvas.style.top.replaceAll('px', ''))
-
-    if (newX !== oldX) {
-      canvas.style.left = stylel + (newX - oldX) + 'px'
-    }
-
-    if (newY !== oldY) {
-      canvas.style.top = stylet + (newY - oldY) + 'px'
-    }
-
-    oldX = newX
-    oldY = newY
-  }
-})
-
-/**
- * zoom in or out for the live2d
- * it uses the property transform scale instead of buffing up or down viewport height of the canvas
- * using the vh in nikke db legacy produces some lag when zooming at high values ( 450 - 500 vh of size)
- * transform should hopefully fix this issue, but to fix blurring/pixelated images
- * the canvas is already bruteforced to 500vh and transform scale 0.2
- * since the zoom is smooth there is no reason to limit it like in nikke db legacy
- * however after scale(1) it'll start getting blurried than usual
- * though I don't see the point as it is already pixelated enough
- */
-
-let transformScale = 0.5
-
-document.addEventListener('wheel', (e) => {
-  if (filterDomEvents(e)) {
-    switch (e.deltaY > 0) {
-      case true:
-        transformScale -= 0.02
-        transformScale < 0.01 && transformScale > -0.01
-          ? (transformScale = -0.02)
-          : ''
-        break
-      case false:
-        transformScale += 0.02
-        transformScale < 0.01 && transformScale > -0.01
-          ? (transformScale = 0.02)
-          : ''
-        break
-      default:
-        break
-    }
-
-    canvas && (canvas.style.transform = 'scale(' + transformScale + ')')
-  }
-})
-
-/*const checkIfAssetCanTalk = () => {
-  market.live2d.canAssetTalk = false
-  if (market.live2d.current_pose === 'fb') {
-
-  }
-}*/
 
 </script>
 

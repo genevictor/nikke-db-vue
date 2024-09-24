@@ -14830,13 +14830,14 @@ ${e.message}`,
                 height + (viewport.height - height) * transitionAlpha
             }
           }
-          renderer.camera.zoom =
-            this.canvas.height / this.canvas.width >
-            viewport.height / viewport.width
-              ? viewport.width / this.canvas.width
-              : viewport.height / this.canvas.height
-          renderer.camera.position.x = viewport.x + viewport.width / 2
-          renderer.camera.position.y = viewport.y + viewport.height / 2
+          // has to comment these lines for CameraController to work properly, otherwise the zoom and position is reset every frame. Should be a bug on Spine's side?
+          // renderer.camera.zoom =
+          //   this.canvas.height / this.canvas.width >
+          //   viewport.height / viewport.width
+          //     ? viewport.width / this.canvas.width
+          //     : viewport.height / this.canvas.height
+          // renderer.camera.position.x = viewport.x + viewport.width / 2
+          // renderer.camera.position.y = viewport.y + viewport.height / 2
           let gl = this.context.gl
           gl.clearColor(bg.r, bg.g, bg.b, bg.a)
           gl.clear(gl.COLOR_BUFFER_BIT)
